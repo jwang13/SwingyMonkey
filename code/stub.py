@@ -6,9 +6,12 @@ from SwingyMonkey import SwingyMonkey
 
 
 VERBOSE = False
-ITERS = 20
-TICK_LENGTH = 1
+ITERS = 50
+TICK_LENGTH = 0
 
+# Score to quit at
+STOP_AT = 50
+GRAVITY_LIMITS = [13, 15, 16, 16]
 
 class Learner(object):
     '''
@@ -19,6 +22,9 @@ class Learner(object):
         self.last_state  = None
         self.last_action = None
         self.last_reward = None
+        self.last_velocity = None
+        self.old_action = None
+        self.gravity = None
 
     def reset(self):
         self.last_state  = None
@@ -41,15 +47,31 @@ class Learner(object):
         vdist = state['monkey']['bot'] - state['tree']['bot']
         current_velocity = state['monkey']['vel']
 
+        cgravity = 3
+        if self.gravity and self.gravity >= 1 and self.gravity <= 4:
+            cgravity = self.gravity
+
         new_action = 0
         # Jump if we would fall below the tree in the next round)
-        if vdist + current_velocity < 10:
+        if vdist + current_velocity < 0:
+            new_action = 1
+        if current_velocity > GRAVITY_LIMITS[cgravity-1]:
             new_action = 1
 
-        new_state  = state
+        if state['score'] > STOP_AT:
+            new_action = 1
+
+        new_state = state
 
         self.last_action = new_action
         self.last_state  = new_state
+
+
+        if (self.old_action and self.old_action == 10 and self.last_velocity):
+            self.gravity = self.last_velocity - current_velocity
+            #print((self.gravity))
+        self.last_velocity = current_velocity
+        self.old_action = new_action + 10
 
         return self.last_action
 
@@ -102,6 +124,7 @@ if __name__ == '__main__':
     print "Average:", sum(scores) / (len(scores) + 0.)
     print "Median:", scores[len(scores) / 2]
     print "Max:", scores[-1]
+    print scores
 
     # Save history. 
     np.save('hist',np.array(hist))
