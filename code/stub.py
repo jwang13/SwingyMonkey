@@ -5,8 +5,8 @@ import numpy.random as npr
 from SwingyMonkey import SwingyMonkey
 
 
-VERBOSE = True
-ITERS = 1
+VERBOSE = False
+ITERS = 20
 TICK_LENGTH = 1
 
 
@@ -38,8 +38,14 @@ class Learner(object):
 
         # You'll need to select and action and return it.
         # Return 0 to swing and 1 to jump.
+        vdist = state['monkey']['bot'] - state['tree']['bot']
+        current_velocity = state['monkey']['vel']
 
-        new_action = npr.rand() < 0.1
+        new_action = 0
+        # Jump if we would fall below the tree in the next round)
+        if vdist + current_velocity < 10:
+            new_action = 1
+
         new_state  = state
 
         self.last_action = new_action
