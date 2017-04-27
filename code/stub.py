@@ -5,6 +5,11 @@ import numpy.random as npr
 from SwingyMonkey import SwingyMonkey
 
 
+VERBOSE = True
+ITERS = 1
+TICK_LENGTH = 1
+
+
 class Learner(object):
     '''
     This agent jumps randomly.
@@ -21,6 +26,9 @@ class Learner(object):
         self.last_reward = None
 
     def action_callback(self, state):
+        if VERBOSE:
+            print state
+
         '''
         Implement this function to learn things and take actions.
         Return 0 if you don't want to jump and 1 if you do.
@@ -69,9 +77,6 @@ def run_games(learner, hist, iters = 100, t_len = 100):
         learner.reset()
 
     return
-
-ITERS = 50
-TICK_LENGTH = 2
 
 if __name__ == '__main__':
 
